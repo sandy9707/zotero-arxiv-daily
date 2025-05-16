@@ -22,10 +22,12 @@ class LLM:
     def generate(self, messages: list[dict]) -> str:
         if isinstance(self.llm, OpenAI):
             response = self.llm.chat.completions.create(messages=messages,temperature=0,model=self.model)
+            # return response.choices[0].message.content
             return response.choices[0].message.content
         else:
             response = self.llm.create_chat_completion(messages=messages,temperature=0)
             return response["choices"][0]["message"]["content"]
+            
 
 def set_global_llm(api_key: str = None, base_url: str = None, model: str = None, lang: str = "English"):
     global GLOBAL_LLM
