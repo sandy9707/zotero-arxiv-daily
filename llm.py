@@ -20,7 +20,7 @@ class LLM:
             )
         self.model = model
         self.lang = lang
-        # 设置 extra_body 参数，用于控制 ModelScope API 的思考功能
+        # 设置 extra_body 参数，用于特定模型（如 Qwen/Qwen3-235B-A22B）的优化
         self.extra_body = {
             "enable_thinking": False  # 默认禁用思考功能，可根据需要调整
             # "thinking_budget": 4096  # 可选参数，控制思考的 token 数量
@@ -30,13 +30,23 @@ class LLM:
         if isinstance(self.llm, OpenAI):
             logger.debug(f"Generating content with model: {self.model}")
             try:
-                response = self.llm.chat.completions.create(
-                    messages=messages,
-                    temperature=0,
-                    model=self.model,
-                    stream=False,  # 显式设置为非流式输出
-                    extra_body=self.extra_body  # 传递 extra_body 参数
-                )
+                # 根据模型名称动态调整请求参数
+                if self.model == "Qwen/Qwen3-235B-A22B":
+                    logger.debug("Using optimized request scheme for Qwen/Qwen3-235B-A22B")
+                    response = self.llm.chat.completions.create(
+                        messages=messages,
+                        temperature=0,
+                        model=self.model,
+                        stream=False,  # 显式设置为非流式输出
+                        extra_body=self.extra_body  # 传递 extra_body 参数
+                    )
+                else:
+                    logger.debug("Using default request scheme for other models")
+                    response = self.llm.chat.completions.create(
+                        messages=messages,
+                        temperature=0,
+                        model=self.model
+                    )
                 return response.choices[0].message.content
             except Exception as e:
                 logger.error(f"API error with model {self.model}: {str(e)}")
