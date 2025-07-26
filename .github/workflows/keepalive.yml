@@ -2,7 +2,7 @@ name: Keep Repo Alive
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 */25 * *'  # 每 25 天 UTC 零点运行一次
+    - cron: '0 0 */25 * *'
 permissions:
   contents: write
 jobs:
@@ -11,13 +11,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # 确保凭证被后续步骤使用
-          persist-credentials: true
+          # 使用你创建的 PAT 进行 checkout
+          token: ${{ secrets.PAT }}
       - uses: gautamkrishnar/keepalive-workflow@v2
         with:
+          # 注意：当使用 PAT 时，通常不需要再指定 committer 的用户名和邮箱
           use_api: false
           time_elapsed: 25
           commit_message: "🚧 keepalive: auto-commit"
-          # 注意：这里的 committer 信息是可选的，如果省略，会使用默认的 GitHub Actions 机器人信息
-          # committer_username: "my-bot"
-          # committer_email: "bot@example.com"
