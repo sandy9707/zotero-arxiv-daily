@@ -1,5 +1,6 @@
 name: Keep Repo Alive
 on:
+  workflow_dispatch:
   schedule:
     - cron: '0 0 */25 * *'  # 每 25 天 UTC 零点运行一次
 permissions:
