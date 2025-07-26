@@ -1,21 +1,28 @@
 name: Keep Repo Alive
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # 允许手动触发，方便测试
   schedule:
     - cron: '0 0 */25 * *'
+
 permissions:
   contents: write
+
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # 使用你的 PAT 来检出代码，这是关键
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          # 使用你创建的 PAT 进行 checkout
+          # 确保这里的 secrets.PAT 名字和你仓库中创建的 Secret 名字完全一致
           token: ${{ secrets.PAT }}
-      - uses: gautamkrishnar/keepalive-workflow@v2
+
+      - name: Keepalive Workflow
+        uses: gautamkrishnar/keepalive-workflow@v2
         with:
-          # 注意：当使用 PAT 时，通常不需要再指定 committer 的用户名和邮箱
-          use_api: false
-          time_elapsed: 25
+          # 当使用 PAT 检出代码后，后续步骤会自动使用该认证信息
+          # 所以这里不需要再传递 token
           commit_message: "🚧 keepalive: auto-commit"
+          committer_username: "sandy"
+          committer_email: "sandy970701@gmail.com"
