@@ -10,10 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 确保凭证被后续步骤使用
+          persist-credentials: true
       - uses: gautamkrishnar/keepalive-workflow@v2
         with:
           use_api: false
           time_elapsed: 25
-          commit_message: "🚧 keepalive: auto‑commit"
-          committer_username: "my-bot"
-          committer_email: "bot@example.com"
+          commit_message: "🚧 keepalive: auto-commit"
+          # 注意：这里的 committer 信息是可选的，如果省略，会使用默认的 GitHub Actions 机器人信息
+          # committer_username: "my-bot"
+          # committer_email: "bot@example.com"
