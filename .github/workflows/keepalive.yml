@@ -1,7 +1,7 @@
 name: Keep Repo Alive
 on:
   schedule:
-    - cron: "0 0 * * *"   # 每天运行一次
+    - cron: '0 0 */25 * *'  # 每 25 天 UTC 零点运行一次
 permissions:
   contents: write
 jobs:
@@ -12,7 +12,7 @@ jobs:
       - uses: gautamkrishnar/keepalive-workflow@v2
         with:
           use_api: false
-          time_elapsed: 50
+          time_elapsed: 25
           commit_message: "🚧 keepalive: auto‑commit"
           committer_username: "my-bot"
           committer_email: "bot@example.com"
