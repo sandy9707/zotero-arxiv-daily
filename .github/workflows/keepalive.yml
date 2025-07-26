@@ -1,28 +1,39 @@
-name: Keep Repo Alive
+name: Keep Repo Alive (Manual)
 on:
-  workflow_dispatch:  # 允许手动触发，方便测试
+  workflow_dispatch:
   schedule:
     - cron: '0 0 */25 * *'
-
-permissions:
-  contents: write
 
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # 必须提供写入权限
     steps:
-      # 使用你的 PAT 来检出代码，这是关键
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          # 确保这里的 secrets.PAT 名字和你仓库中创建的 Secret 名字完全一致
-          token: ${{ secrets.PAT }}
+        # 如果你的仓库是私有的，或者你想用特定用户提交，仍然建议使用 PAT
+        # with:
+        #   token: ${{ secrets.PAT }}
 
-      - name: Keepalive Workflow
-        uses: gautamkrishnar/keepalive-workflow@v2
-        with:
-          # 当使用 PAT 检出代码后，后续步骤会自动使用该认证信息
-          # 所以这里不需要再传递 token
-          commit_message: "🚧 keepalive: auto-commit"
-          committer_username: "sandy"
-          committer_email: "sandy970701@gmail.com"
+      - name: Create or update a file to trigger commit
+        run: |
+          # 创建一个时间戳文件，每次运行内容都会变化，确保有东西可提交
+          date > last_updated.txt
+
+      - name: Commit and push changes
+        run: |
+          # 配置 git 用户
+          git config --global user.name 'my-bot'
+          git config --global user.email 'my-bot@users.noreply.github.com'
+          
+          # 添加更改并提交
+          git add last_updated.txt
+          # 使用 "git diff-index --quiet HEAD" 检查是否有改动
+          # 如果没有改动（比如文件内容没变），就不执行 commit 和 push，避免报错
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "🚧 keepalive: auto-commit on $(date)"
+            git push
+          else
+            echo "No changes to commit."
+          fi
