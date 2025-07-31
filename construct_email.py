@@ -58,8 +58,10 @@ def get_empty_html():
   """
   return block_template
 
-def get_block_html(title:str, authors:str, rate:str,arxiv_id:str, abstract:str, pdf_url:str, code_url:str=None, affiliations:str=None):
+def get_block_html(title:str, authors:str, rate:str,arxiv_id:str, abstract:str, pdf_url:str, code_url:str=None, affiliations:str=None, html_url:str=None):
     code = f'<a href="{code_url}" style="display: inline-block; text-decoration: none; font-size: 14px; font-weight: bold; color: #fff; background-color: #5bc0de; padding: 8px 16px; border-radius: 4px; margin-left: 8px;">Code</a>' if code_url else ''
+    abstract_url = pdf_url.replace("/pdf/", "/abs/")
+    html_button = f'<a href="{html_url}" style="display: inline-block; text-decoration: none; font-size: 14px; font-weight: bold; color: #fff; background-color: #5cb85c; padding: 8px 16px; border-radius: 4px; margin-left: 8px;">HTML</a>' if html_url else ''
     block_template = """
     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="font-family: Arial, sans-serif; border: 1px solid #ddd; border-radius: 8px; padding: 16px; background-color: #f9f9f9;">
     <tr>
@@ -81,7 +83,7 @@ def get_block_html(title:str, authors:str, rate:str,arxiv_id:str, abstract:str, 
     </tr>
     <tr>
         <td style="font-size: 14px; color: #333; padding: 8px 0;">
-            <strong>arXiv ID:</strong> {arxiv_id}
+            <strong>arXiv ID:</strong> <a href="{abstract_url}" style="text-decoration: none; color: #007bff;">{arxiv_id}</a>
         </td>
     </tr>
     <tr>
@@ -92,7 +94,8 @@ def get_block_html(title:str, authors:str, rate:str,arxiv_id:str, abstract:str, 
 
     <tr>
         <td style="padding: 8px 0;">
-            <a href="{pdf_url}" style="display: inline-block; text-decoration: none; font-size: 14px; font-weight: bold; color: #fff; background-color: #d9534f; padding: 8px 16px; border-radius: 4px;">PDF</a>
+            <a href="{abstract_url}" style="display: inline-block; text-decoration: none; font-size: 14px; font-weight: bold; color: #fff; background-color: #d9534f; padding: 8px 16px; border-radius: 4px;">PDF</a>
+            {html_button}
             {code}
         </td>
     </tr>
@@ -121,7 +124,7 @@ def render_email(papers:list[ArxivPaper]):
     parts = []
     if len(papers) == 0 :
         return framework.replace('__CONTENT__', get_empty_html())
-    
+
     for p in tqdm(papers,desc='Rendering Email'):
         rate = get_stars(p.score)
         authors = [a.name for a in p.authors[:5]]
